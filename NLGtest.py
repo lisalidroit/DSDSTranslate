@@ -121,7 +121,7 @@ asicProd = """  (scope product
 
 
 d={}
-def bilatScope(lis, length, finalList):
+def bilatScope(lis, length):
     aList=["Does transaction satisfy bilateral party scope?"]
     i = 2
     while i < length:
@@ -131,24 +131,39 @@ def bilatScope(lis, length, finalList):
                 if "any" in lis[j]:
                     sentence = "Does any party satisfy the condition(s)?"
                     aList.append(sentence)
+                    for k in range(j, length):
+                        if lis[k]== "is" or lis[k] == "is-not":
+                            entity = lis[k+1].split("/")[1]
+                            entity = entity.replace(")", "")
+                            entity = entity.replace("}", "")
+                            entity = entity.replace("-", " ")
+                            sentence = "Is the party a(n) "+entity+"?"
+                            if lis[k] == "is-not":
+                                sentence = "Is the party not a(n) "+entity+"?"
+                            aList.append(sentence)
+                            i = k+1
+                            j = k+1
+                            if ("))" in lis[k+1]) or ("all" in lis[k+2]):
+                                break
+                    
                 elif "all" in lis[j]:
-                    aList.append("Do all parties satisfy the condition(s)?")
-                for k in range(j, length):
-                    if lis[k]== "is" or lis[k] == "is-not":
-                        entity = lis[k+1].split("/")[1]
-                        entity = entity.replace(")", "")
-                        entity = entity.replace("}", "")
-                        entity = entity.replace("-", " ")
-                        sentence = "Is the party a(n) "+entity+"?"
-                        if lis[k] == "is-not":
-                            sentence = "Is the party not a(n) "+entity+"?"
-                        aList.append(sentence)
-                        i = k+1
-                        j = k+1
-                        if ("))" in lis[k+1]) or ("all" in lis[k+2]) or ("any" in lis[k+2]):
-                            break
+                    sentence = "Do all parties satisfy the condition(s)?"
+                    aList.append(sentence)
+                    for k in range(j, length):
+                        if lis[k]== "is" or lis[k] == "is-not":
+                            entity = lis[k+1].split("/")[1]
+                            entity = entity.replace(")", "")
+                            entity = entity.replace("}", "")
+                            entity = entity.replace("-", " ")
+                            sentence = "Is the party a(n) "+entity+"?"
+                            if lis[k] == "is-not":
+                                sentence = "Is the party not a(n) "+entity+"?"
+                            aList.append(sentence)
+                            i = k+1
+                            j = k+1
+                            if "))" in lis[k+1] or "any" in lis[k+2]:
+                                break
             i = i+1
-        i = i+1
     return aList
             
 
@@ -168,21 +183,20 @@ def prodScope(lis, length):
                     if lis[j] == "is-not":
                         sentence = "Is the product not a(n) "+entity+"?"
                     aList.append(sentence)
-                    i = j+1
 
                 
-                
 
 
 
 
 
 
-def process(scope, d):
+def process(scope):
     lis = ' '.join(scope.split(" "))
     lis2 = lis.split()
     if "bilateral-party" in lis2[1]:
         result = bilatScope(lis2, len(lis2))
+        print(result)
         d["bilateral-scope"] = result
     elif "product" in lis2[1]:
         result = prodScope(lis2, len(lis2))
